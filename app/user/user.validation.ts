@@ -94,6 +94,11 @@ export const createUser = checkExact([
     .withMessage("Name is required")
     .isString()
     .withMessage("Name must be a string"),
+  body("username")
+    .notEmpty()
+    .withMessage("Username is required")
+    .isString()
+    .withMessage("Username must be a string"),
   body("email")
     .notEmpty()
     .withMessage("Email is required")
@@ -109,12 +114,6 @@ export const createUser = checkExact([
     .withMessage("Password is required")
     .isString()
     .withMessage("Password must be a string"),
-  body("confirmPassword").custom((value, { req }) => {
-    if (value !== req.body.password) {
-      throw new Error("Password confirmation does not match password");
-    }
-    return true;
-  }),
 ]);
 
 export const updateUser = [

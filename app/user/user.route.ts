@@ -72,23 +72,5 @@ router
     catchError,
     userController.googleLogin
   )
-  .post(
-    "/social/facebook",
-    userValidator.socialLogin("access_token"),
-    catchError,
-    userController.fbLogin
-  )
-  .post(
-    "/social/linkedin",
-    userValidator.socialLogin("access_token"),
-    catchError,
-    userController.linkedInLogin
-  )
-  .post(
-    "/social/apple",
-    userValidator.socialLogin("id_token"),
-    catchError,
-    userController.appleLogin
-  );
 
 export default router;

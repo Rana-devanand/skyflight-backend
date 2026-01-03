@@ -11,6 +11,7 @@ export const hashPassword = async (password: string) => {
 const UserSchema = new Schema<IUser>(
   {
     name: { type: String },
+    username : {type : String},
     email: { type: String },
     active: { type: Boolean, required: false, default: true },
     role: {
@@ -28,9 +29,7 @@ const UserSchema = new Schema<IUser>(
       enum: Object.values(ProviderType),
       default: ProviderType.MANUAL,
     },
-    facebookId: { type: String, select: false },
     image: { type: String },
-    linkedinId: { type: String, select: false },
   },
   { timestamps: true }
 );

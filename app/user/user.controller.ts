@@ -261,62 +261,7 @@ export const refreshToken = asyncHandler(
   }
 );
 
-export const appleLogin = asyncHandler(async (req: Request, res: Response) => {
-  if (!process.env.APPLE_BUNDLE_ID) {
-    throw createHttpError({ message: "Apple bundle id not configured!" });
-  }
 
-  const jwtClaims = await verifyAppleToken({
-    idToken: req.body.id_token,
-    clientId: process.env.APPLE_BUNDLE_ID || "",
-  });
-
-  const existUser = await userService.getUserByEmail(jwtClaims.email);
-  const user =
-    existUser ??
-    (await userService.createUser({
-      email: jwtClaims.email,
-      provider: ProviderType.APPLE,
-      name: "",
-      active: true,
-      role: "USER",
-    }));
-  const tokens = createUserTokens(user);
-  await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
-  res.send(createResponse(tokens));
-});
-
-export const fbLogin = asyncHandler(async (req: Request, res: Response) => {
-  const urlSearchParams = new URLSearchParams({
-    fields: "id,name,email,picture",
-    access_token: req.body.access_token,
-  });
-  const { data } = await axios.get<{
-    id: string;
-    name: string;
-    email: string;
-    picture: {
-      data: {
-        url: string;
-      };
-    };
-  }>(`https://graph.facebook.com/v15.0/me?${urlSearchParams.toString()}`);
-
-  const existUser = await userService.getUserByEmail(data.email);
-  const user =
-    existUser ??
-    (await userService.createUser({
-      email: data.email,
-      provider: ProviderType.FACEBOOK,
-      facebookId: data.id,
-      image: data.picture.data.url,
-      name: data?.name,
-      role: "USER",
-    }));
-  const tokens = createUserTokens(user);
-  await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
-  res.send(createResponse(tokens));
-});
 
 export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   const { data } = await axios.get<{
@@ -328,12 +273,14 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   });
 
   const { email, name = " ", picture } = data;
+  const username = email.split("@")[0];
 
   const existUser = await userService.getUserByEmail(data.email);
   const user =
     existUser ??
     (await userService.createUser({
       email,
+      username,
       name,
       provider: ProviderType.GOOGLE,
       image: picture,
@@ -345,36 +292,3 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   res.send(createResponse(tokens));
 });
 
-export const linkedInLogin = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { access_token } = req.body;
-
-    const urlSearchParams = new URLSearchParams({
-      oauth2_access_token: access_token,
-    });
-
-    const { data: userData } = await axios.get<{
-      sub: string;
-      given_name: string;
-      family_name: string;
-      email: string;
-      picture: string;
-      name: string;
-    }>(`https://api.linkedin.com/v2/userinfo?${urlSearchParams.toString()}`);
-
-    const existUser = await userService.getUserByEmail(userData.email);
-    const user =
-      existUser ??
-      (await userService.createUser({
-        email: userData.email,
-        name: userData?.name,
-        linkedinId: userData.sub,
-        image: userData.picture,
-        provider: ProviderType.LINKEDIN,
-        role: "USER",
-      }));
-    const tokens = createUserTokens(user);
-    await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
-    res.send(createResponse(tokens));
-  }
-);
