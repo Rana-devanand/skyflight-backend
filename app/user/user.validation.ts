@@ -98,12 +98,7 @@ export const createUser = checkExact([
     .notEmpty()
     .withMessage("Email is required")
     .isEmail()
-    .withMessage("Email must be valid")
-    .custom(async (value) => {
-      const user = await userService.getUserByEmail(value);
-      if (user) throw new Error("Email is already exist.");
-      return true;
-    }),
+    .withMessage("Email must be valid"),
   body("password")
     .notEmpty()
     .withMessage("Password is required")
