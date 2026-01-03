@@ -1,11 +1,11 @@
 {
-  "name": "template",
+  "name": "skyvault-backend",
   "private": true,
   "scripts": {
     "local": "nodemon",
-    "start": "NODE_ENV=local ts-node ./index.ts",
-    "dev": "pnpm run build && NODE_ENV=development node ./dist/index.js",
-    "prod": "pnpm run build && NODE_ENV=production node ./dist/index.js",
+    "start": "cross-env NODE_ENV=local ts-node ./index.ts",
+    "dev": "pnpm run build && cross-env NODE_ENV=development node ./dist/index.js",
+    "prod": "pnpm run build && cross-env NODE_ENV=production node ./dist/index.js",
     "build": "npx tsc",
     "lint": "eslint . --ext .ts,.js --max-warnings=0",
     "lint:fix": "eslint --fix --ext .js,.ts .",
@@ -35,6 +35,7 @@
     "@types/passport-jwt": "^3.0.9",
     "@types/passport-local": "^1.0.35",
     "@typescript-eslint/eslint-plugin": "^6.4.0",
+    "cross-env": "^10.1.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
@@ -68,6 +69,7 @@
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pnpm": "^10.27.0",
     "verify-apple-id-token": "^3.1.2"
   }
 }
