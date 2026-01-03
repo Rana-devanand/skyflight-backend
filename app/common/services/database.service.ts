@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { supabase } from "../helper/supabaseClient";
 
 export const initDB = async (): Promise<boolean> => {
   return await new Promise((resolve, reject) => {
@@ -15,4 +16,18 @@ export const initDB = async (): Promise<boolean> => {
       })
       .catch(reject);
   });
+};
+
+
+export const testSupabaseConnection = async () => {
+  const { data, error } = await supabase
+    .from("users")
+    .select("id")
+    .limit(1);
+
+  if (error) {
+    console.error("❌ Supabase Connection Failed:", error.message);
+  } else {
+    console.log("✅ Supabase Connected Successfully");
+  }
 };

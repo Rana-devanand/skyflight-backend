@@ -27,8 +27,8 @@ export const inviteUser = asyncHandler(async (req: Request, res: Response) => {
     active: false,
   });
   const { email } = req.body;
-  const { refreshToken } = createUserTokens(result);
-  await userService.editUser(result._id, { refreshToken });
+  // const { refreshToken } = createUserTokens(result);
+  // await userService.editUser(result._id, { refreshToken });
   const url = `${process.env.FE_BASE_URL}/reset-password?code=${refreshToken}&type=invite`;
   console.log(url);
   sendEmail({
@@ -287,8 +287,8 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
       role: "USER",
     }));
 
-  const tokens = createUserTokens(user);
-  await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
-  res.send(createResponse(tokens));
+  // const tokens = createUserTokens(user);
+  // await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
+  // res.send(createResponse(tokens));
 });
 
