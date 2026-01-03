@@ -1,5 +1,4 @@
-import bcrypt from "bcrypt";
-import mongoose from "mongoose";
+import bcrypt from "bcryptjs";import mongoose from "mongoose";
 import { ProviderType, type IUser } from "./user.dto";
 
 const Schema = mongoose.Schema;

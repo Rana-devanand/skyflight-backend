@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import dayjs from "dayjs";
 import { type Request } from "express";
 import createError from "http-errors";
