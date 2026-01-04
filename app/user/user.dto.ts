@@ -2,6 +2,7 @@ import { type BaseSchema } from "../common/dto/base.dto";
 
 export interface IUser extends BaseSchema {
   name: string;
+  username: string;
   email: string;
   active?: boolean;
   role: "USER" | "ADMIN";
@@ -9,10 +10,8 @@ export interface IUser extends BaseSchema {
   refreshToken?: string;
   blocked?: boolean;
   blockReason?: string;
-  provider: ProviderType;
-  facebookId?: string;
+  provider?: ProviderType;
   image?: string;
-  linkedinId?: string;
 }
 
 export enum ProviderType {

@@ -1,13 +1,15 @@
 import { ProjectionType, QueryOptions } from "mongoose";
 import { type IUser } from "./user.dto";
 import UserSchema from "./user.schema";
+import { supabase } from "../common/helper/supabaseClient";
 
 export const createUser = async (
   data: Omit<IUser, "_id" | "createdAt" | "updatedAt">
 ) => {
-  const result = await UserSchema.create(data);
-  const { refreshToken, password, ...user } = result.toJSON();
-  return user;
+  const result = await supabase.from("users").insert(data);
+  console.log({result})
+  // const { refreshToken, password, ...user } = result.data;
+  return result.data;
 };
 
 export const updateUser = async (id: string, data: IUser) => {

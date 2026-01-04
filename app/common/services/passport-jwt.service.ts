@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import dayjs from "dayjs";
 import { type Request } from "express";
 import createError from "http-errors";
@@ -85,10 +85,12 @@ export const initPassport = (): void => {
 export const createUserTokens = (user: Omit<IUser, "password">) => {
   const jwtSecret = process.env.JWT_SECRET ?? "";
   const accessToken = jwt.sign(user, jwtSecret, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRY ?? "30m",
+    expiresIn: (process.env.ACCESS_TOKEN_EXPIRY ??
+      "30m") as jwt.SignOptions["expiresIn"],
   });
   const refreshToken = jwt.sign(user, jwtSecret, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRY ?? "2d",
+    expiresIn: (process.env.REFRESH_TOKEN_EXPIRY ??
+      "2d") as jwt.SignOptions["expiresIn"],
   });
   return { accessToken, refreshToken };
 };
