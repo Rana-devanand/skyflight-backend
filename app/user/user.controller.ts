@@ -20,159 +20,159 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
   res.send(createResponse(result, "User created sucssefully"));
 });
 
-export const inviteUser = asyncHandler(async (req: Request, res: Response) => {
-  const result = await userService.createUser({
-    ...req.body,
-    role: "USER",
-    active: false,
-  });
-  const { email } = req.body;
-  // const { refreshToken } = createUserTokens(result);
-  // await userService.editUser(result._id, { refreshToken });
-  const url = `${process.env.FE_BASE_URL}/reset-password?code=${refreshToken}&type=invite`;
-  console.log(url);
-  sendEmail({
-    to: email,
-    subject: "Welcone to <app>",
-    html: `<body to create profile> ${url}`,
-  });
-  res.send(createResponse(result, "User invited sucssefully"));
-});
+// export const inviteUser = asyncHandler(async (req: Request, res: Response) => {
+//   const result = await userService.createUser({
+//     ...req.body,
+//     role: "USER",
+//     active: false,
+//   });
+//   const { email } = req.body;
+//   // const { refreshToken } = createUserTokens(result);
+//   // await userService.editUser(result._id, { refreshToken });
+//   const url = `${process.env.FE_BASE_URL}/reset-password?code=${refreshToken}&type=invite`;
+//   console.log(url);
+//   sendEmail({
+//     to: email,
+//     subject: "Welcone to <app>",
+//     html: `<body to create profile> ${url}`,
+//   });
+//   res.send(createResponse(result, "User invited sucssefully"));
+// });
 
-export const verifyInvitation = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { token, password } = req.body;
-    const { email, expired } = decodeToken(token);
-    const user = await userService.getUserByEmail(email, {
-      refreshToken: true,
-      active: true,
-    });
+// export const verifyInvitation = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const { token, password } = req.body;
+//     const { email, expired } = decodeToken(token);
+//     const user = await userService.getUserByEmail(email, {
+//       refreshToken: true,
+//       active: true,
+//     });
 
-    if (!user || expired || token !== user.refreshToken) {
-      throw createHttpError(400, { message: "Invitation is expired" });
-    }
+//     if (!user || expired || token !== user.refreshToken) {
+//       throw createHttpError(400, { message: "Invitation is expired" });
+//     }
 
-    if (user?.active) {
-      throw createHttpError(400, {
-        message: "Invitation is accepeted, Please login",
-      });
-    }
+//     if (user?.active) {
+//       throw createHttpError(400, {
+//         message: "Invitation is accepeted, Please login",
+//       });
+//     }
 
-    if (user?.blocked) {
-      throw createHttpError(400, { message: "User is blocked" });
-    }
-    const tokens = await createUserTokens(user);
-    await userService.editUser(user._id, {
-      password: await hashPassword(password),
-      active: true,
-      refreshToken: tokens.refreshToken,
-    });
-    res.send(createResponse(tokens, "User verified sucssefully"));
-  }
-);
+//     if (user?.blocked) {
+//       throw createHttpError(400, { message: "User is blocked" });
+//     }
+//     const tokens = await createUserTokens(user);
+//     await userService.editUser(user._id, {
+//       password: await hashPassword(password),
+//       active: true,
+//       refreshToken: tokens.refreshToken,
+//     });
+//     res.send(createResponse(tokens, "User verified sucssefully"));
+//   }
+// );
 
-export const resetPassword = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { token, password } = req.body;
-    const { email, expired } = decodeToken(token);
-    console.log({ email, expired });
-    const user = await userService.getUserByEmail(email, {
-      refreshToken: true,
-      active: true,
-    });
+// export const resetPassword = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const { token, password } = req.body;
+//     const { email, expired } = decodeToken(token);
+//     console.log({ email, expired });
+//     const user = await userService.getUserByEmail(email, {
+//       refreshToken: true,
+//       active: true,
+//     });
 
-    if (!user || expired || token !== user.refreshToken) {
-      throw createHttpError(400, { message: "Invitation is expired" });
-    }
+//     if (!user || expired || token !== user.refreshToken) {
+//       throw createHttpError(400, { message: "Invitation is expired" });
+//     }
 
-    if (!user?.active) {
-      throw createHttpError(400, {
-        message: "User is not active",
-      });
-    }
+//     if (!user?.active) {
+//       throw createHttpError(400, {
+//         message: "User is not active",
+//       });
+//     }
 
-    if (user?.blocked) {
-      throw createHttpError(400, { message: "User is blocked" });
-    }
-    await userService.editUser(user._id, {
-      password: await hashPassword(password),
-      refreshToken: "",
-    });
-    res.send(createResponse(null, "Password updated sucssefully"));
-  }
-);
+//     if (user?.blocked) {
+//       throw createHttpError(400, { message: "User is blocked" });
+//     }
+//     await userService.editUser(user._id, {
+//       password: await hashPassword(password),
+//       refreshToken: "",
+//     });
+//     res.send(createResponse(null, "Password updated sucssefully"));
+//   }
+// );
 
-export const changePassword = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { currentPassword, password } = req.body;
-    const user = await userService.getUserById(req.user?._id!, {
-      refreshToken: true,
-      active: true,
-      password: true,
-      provider: true,
-    });
+// export const changePassword = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const { currentPassword, password } = req.body;
+//     // const user = await userService.getUserById(req.user?._id!, {
+//     //   refreshToken: true,
+//     //   active: true,
+//     //   password: true,
+//     //   provider: true,
+//     // });
 
-    if (!user) {
-      throw createHttpError(400, { message: "Invalid user" });
-    }
+//     // if (!user) {
+//     //   throw createHttpError(400, { message: "Invalid user" });
+//     // }
 
-    if (user.provider === ProviderType.MANUAL) {
-      const validPassword = await isValidPassword(
-        currentPassword,
-        user.password!
-      );
-      if (!validPassword) {
-        throw createHttpError(400, {
-          message: "Current password doesn't matched",
-        });
-      }
-    }
+//     // if (user.provider === ProviderType.MANUAL) {
+//     //   const validPassword = await isValidPassword(
+//     //     currentPassword,
+//     //     user.password!
+//     //   );
+//     //   if (!validPassword) {
+//     //     throw createHttpError(400, {
+//     //       message: "Current password doesn't matched",
+//     //     });
+//     //   }
+//     // }
 
-    await userService.editUser(user._id, {
-      password: await hashPassword(password),
-      provider: ProviderType.MANUAL,
-    });
-    res.send(createResponse(null, "Password changed sucssefully"));
-  }
-);
+//     // await userService.editUser(user._id, {
+//     //   password: await hashPassword(password),
+//     //   provider: ProviderType.MANUAL,
+//     // });
+//     // res.send(createResponse(null, "Password changed sucssefully"));
+//   }
+// );
 
-export const requestResetPassword = asyncHandler(
-  async (req: Request, res: Response) => {
-    const { email } = req.body;
+// export const requestResetPassword = asyncHandler(
+//   async (req: Request, res: Response) => {
+//     const { email } = req.body;
 
-    const user = await userService.getUserByEmail(email, {
-      active: true,
-      blocked: true,
-      email: true,
-    });
+//     const user = await userService.getUserByEmail(email, {
+//       active: true,
+//       blocked: true,
+//       email: true,
+//     });
 
-    if (!user?.active) {
-      throw createHttpError(400, {
-        message: "User is not active",
-      });
-    }
+//     if (!user?.active) {
+//       throw createHttpError(400, {
+//         message: "User is not active",
+//       });
+//     }
 
-    if (user?.blocked) {
-      throw createHttpError(400, { message: "User is blocked" });
-    }
+//     if (user?.blocked) {
+//       throw createHttpError(400, { message: "User is blocked" });
+//     }
 
-    const tokens = createUserTokens(user);
+//     const tokens = createUserTokens(user);
 
-    await userService.editUser(user._id, {
-      refreshToken: tokens.refreshToken,
-    });
+//     await userService.editUser(user._id, {
+//       refreshToken: tokens.refreshToken,
+//     });
 
-    const url = `${process.env.FE_BASE_URL}/reset-password?code=${tokens.refreshToken}&type=reset-password`;
-    console.log(url);
+//     const url = `${process.env.FE_BASE_URL}/reset-password?code=${tokens.refreshToken}&type=reset-password`;
+//     console.log(url);
 
-    sendEmail({
-      to: email,
-      subject: "Reset password",
-      html: `<body to create profile> ${url}`,
-    });
-    res.send(createResponse(null, "Reset password link sent to your email."));
-  }
-);
+//     sendEmail({
+//       to: email,
+//       subject: "Reset password",
+//       html: `<body to create profile> ${url}`,
+//     });
+//     res.send(createResponse(null, "Reset password link sent to your email."));
+//   }
+// );
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
   const result = await userService.updateUser(req.params.id, req.body);
@@ -190,8 +190,8 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUserById = asyncHandler(async (req: Request, res: Response) => {
-  const result = await userService.getUserById(req.params.id);
-  res.send(createResponse(result));
+  // const result = await userService.getUserById(req.params.id);
+  // res.send(createResponse(result));
 });
 
 export const getAllUser = asyncHandler(async (req: Request, res: Response) => {
@@ -215,22 +215,22 @@ export const getAllUser = asyncHandler(async (req: Request, res: Response) => {
 
 export const login = asyncHandler(async (req: Request, res: Response) => {
   const tokens = createUserTokens(req.user!);
-  await userService.editUser(req.user!._id, {
+  await userService.editUser(req.user!.id, {
     refreshToken: tokens.refreshToken,
   });
-  res.send(createResponse(tokens));
+  res.send(createResponse({ ...tokens, user: req.user }));
 });
 
 export const getUserInfo = asyncHandler(async (req: Request, res: Response) => {
-  const user = await userService.getUserById(req.user?._id!);
+  const user = await userService.getUserById(req.user?.id!);
   res.send(createResponse(user));
 });
 
-export const logout = asyncHandler(async (req: Request, res: Response) => {
-  const user = req.user!;
-  await userService.editUser(user._id, { refreshToken: "" });
-  res.send(createResponse({ message: "User logout successfully!" }));
-});
+// export const logout = asyncHandler(async (req: Request, res: Response) => {
+//   const user = req.user!;
+//   await userService.editUser(user._id, { refreshToken: "" });
+//   res.send(createResponse({ message: "User logout successfully!" }));
+// });
 
 export const refreshToken = asyncHandler(
   async (req: Request, res: Response) => {
@@ -246,17 +246,17 @@ export const refreshToken = asyncHandler(
     if (!user || refreshToken !== user.refreshToken) {
       throw createHttpError({ message: "Invalid session" });
     }
-    if (!user?.active) {
-      throw createHttpError({ message: "User is not active" });
-    }
+    // if (!user?.active) {
+    //   throw createHttpError({ message: "User is not active" });
+    // }
     if (user?.blocked) {
       throw createHttpError({ message: "User is blocked" });
     }
     delete user.refreshToken;
     const tokens = createUserTokens(user);
-    await userService.editUser(user._id, {
-      refreshToken: tokens.refreshToken,
-    });
+    // await userService.editUser(user._id, {
+    //   refreshToken: tokens.refreshToken,
+    // });
     res.send(createResponse(tokens));
   }
 );
@@ -276,16 +276,16 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   const username = email.split("@")[0];
 
   const existUser = await userService.getUserByEmail(data.email);
-  const user =
-    existUser ??
-    (await userService.createUser({
-      email,
-      username,
-      name,
-      provider: ProviderType.GOOGLE,
-      image: picture,
-      role: "USER",
-    }));
+  // const user =
+    // existUser ??
+    // (await userService.createUser({
+    //   email,
+    //   username,
+    //   name,
+    //   provider: ProviderType.GOOGLE,
+    //   image: picture,
+    //   role: "USER",
+    // }));
 
   // const tokens = createUserTokens(user);
   // await userService.editUser(user._id, { refreshToken: tokens.refreshToken });

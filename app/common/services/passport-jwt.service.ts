@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import dayjs from "dayjs";
 import { type Request } from "express";
 import createError from "http-errors";
@@ -8,78 +8,61 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { Strategy as LocalStrategy } from "passport-local";
 import { type IUser } from "../../user/user.dto";
 import * as userService from "../../user/user.service";
+import { supabase } from "../helper/supabaseClient";
+import { supabaseAdmin } from "../helper/supabaseAdmin";
 
-export const isValidPassword = async function (
-  value: string,
-  password: string
-) {
-  const compare = await bcrypt.compare(value, password);
-  return compare;
+
+export const isValidPassword = async (plain: string, hash: string) => {
+  return await bcrypt.compare(plain, hash);
 };
 
-export const initPassport = (): void => {
-  passport.use(
-    new Strategy(
-      {
-        secretOrKey: process.env.JWT_SECRET,
-        jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      },
-      async (token: { user: Request["user"] }, done) => {
-        try {
-          done(null, token.user);
-        } catch (error) {
-          done(error);
-        }
+
+export const getUserByEmail = async (email: string) => {
+  const { data, error } = await supabaseAdmin
+    .from("users")
+    .select("id, uid,  name, email,username, password, role, provider, created_at")
+    .eq("email", email)
+    .single();
+  if (error) return null;
+  return data;
+};
+
+export const getUserById = async (id: string) => {
+  const { data } = await supabaseAdmin
+    .from("users")
+    .select("id, name, username, email, role, provider, created_at")
+    .eq("id", id)
+    .single();
+  return data;
+};
+
+export const initPassport = () => {
+  // JWT Strategy
+passport.use(
+  "login",
+  new LocalStrategy(
+    { usernameField: "email", passwordField: "password" },
+    async (email, password, done) => {
+      try {
+        const user = await getUserByEmail(email);
+
+        if (!user)
+          return done(createError(401, "Invalid email or password"), false);
+
+        const isMatch = await isValidPassword(password, user.password);
+
+        if (!isMatch)
+          return done(createError(401, "Invalid email or password"), false);
+
+        delete (user as any).password;
+
+        return done(null, user);
+      } catch (err: any) {
+        return done(createError(500, err.message));
       }
-    )
-  );
-
-  // user login
-  passport.use(
-    "login",
-    new LocalStrategy(
-      {
-        usernameField: "email",
-        passwordField: "password",
-      },
-      async (email, password, done) => {
-        try {
-          const user = await userService.getUserByEmail(email, {
-            password: true,
-            name: true,
-            email: true,
-            active: true,
-            role: true,
-            provider: true,
-          });
-          if (user == null) {
-            done(createError(401, "User not found!"), false);
-            return;
-          }
-
-          if (!user.active) {
-            done(createError(401, "User is inactive"), false);
-            return;
-          }
-
-          if (user.blocked) {
-            done(createError(401, "User is blocked, Contact to admin"), false);
-            return;
-          }
-
-          const validate = await isValidPassword(password, user.password!);
-          if (!validate) {
-            done(createError(401, "Invalid email or password"), false);
-            return;
-          }
-          const { password: _p, ...result } = user;
-          done(null, result, { message: "Logged in Successfully" });
-        } catch (error: any) {
-          done(createError(500, error.message));
-        }
-      }
-    )
-  );
+    }
+  )
+);
 };
 
 export const createUserTokens = (user: Omit<IUser, "password">) => {
