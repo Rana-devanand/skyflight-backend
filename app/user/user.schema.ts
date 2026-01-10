@@ -1,4 +1,5 @@
-import bcrypt from "bcryptjs";import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 import { ProviderType, type IUser } from "./user.dto";
 
 const Schema = mongoose.Schema;
@@ -13,7 +14,7 @@ const UserSchema = new Schema<IUser>(
     name: { type: String },
     username : {type : String},
     email: { type: String },
-    active: { type: Boolean, required: false, default: true },
+    // active: { type: Boolean, required: false, default: true },
     role: {
       type: String,
       required: true,
@@ -34,11 +35,11 @@ const UserSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-UserSchema.pre("save", async function (next) {
-  if (this.password) {
-    this.password = await hashPassword(this.password);
-  }
-  next();
-});
+// UserSchema.pre("save", async function (next) {
+//   if (this.password) {
+//     this.password = await hashPassword(this.password);
+//   }
+//   next();
+// });
 
 export default mongoose.model<IUser>("user", UserSchema);

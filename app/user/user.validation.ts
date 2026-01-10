@@ -38,11 +38,11 @@ export const verifyInvitation = checkExact([
 
 export const changePassword = checkExact([
   body("currentPassword").custom(async (value, { req }) => {
-    const user = await userService.getUserById(req.user._id, {
-      provider: true,
-    });
-    if (user?.provider === ProviderType.MANUAL && !value)
-      throw new Error("Current password is required.");
+    // const user = await userService.getUserById(req.user._id, {
+    //   provider: true,
+    // });
+    // if (user?.provider === ProviderType.MANUAL && !value)
+    //   throw new Error("Current password is required.");
     return true;
   }),
   body("password")

@@ -4,7 +4,7 @@ export interface IUser extends BaseSchema {
   name: string;
   username: string;
   email: string;
-  active?: boolean;
+  // active?: boolean;
   role: "USER" | "ADMIN";
   password?: string;
   refreshToken?: string;

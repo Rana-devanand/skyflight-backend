@@ -25,32 +25,32 @@ router
     "/invite",
     userValidator.verifyEmail,
     catchError,
-    userController.inviteUser
+    // userController.inviteUser
   )
   .post(
     "/verify-invitation",
     userValidator.verifyInvitation,
     catchError,
-    userController.verifyInvitation
+    // userController.verifyInvitation
   )
   .post(
     "/reset-password",
     userValidator.verifyInvitation,
     catchError,
-    userController.resetPassword
+    // userController.resetPassword
   )
   .post(
     "/forgot-password",
     userValidator.forgotPassword,
     catchError,
-    userController.requestResetPassword
+    // userController.requestResetPassword
   )
   .post(
     "/change-password",
     roleAuth(["USER"]),
     userValidator.changePassword,
     catchError,
-    userController.changePassword
+    // userController.changePassword
   )
   .post(
     "/login",
@@ -65,7 +65,7 @@ router
     catchError,
     userController.refreshToken
   )
-  .post("/logout", roleAuth(["USER"]), userController.logout)
+  // .post("/logout", roleAuth(["USER"]), userController.logout)
   .post(
     "/social/google",
     userValidator.socialLogin("access_token"),
