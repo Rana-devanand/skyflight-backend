@@ -190,8 +190,8 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUserById = asyncHandler(async (req: Request, res: Response) => {
-  // const result = await userService.getUserById(req.params.id);
-  // res.send(createResponse(result));
+  const result = await userService.getUserById(req.params.id);
+  res.send(createResponse(result));
 });
 
 export const getAllUser = asyncHandler(async (req: Request, res: Response) => {
@@ -226,37 +226,34 @@ export const getUserInfo = asyncHandler(async (req: Request, res: Response) => {
   res.send(createResponse(user));
 });
 
-// export const logout = asyncHandler(async (req: Request, res: Response) => {
-//   const user = req.user!;
-//   await userService.editUser(user._id, { refreshToken: "" });
-//   res.send(createResponse({ message: "User logout successfully!" }));
-// });
+export const logout = asyncHandler(async (req: Request, res: Response) => {
+  const user = req.user!;
+  await userService.editUser(user.id, { refreshToken: "" });
+  res.send(createResponse({ message: "User logout successfully!" }));
+});
 
 export const refreshToken = asyncHandler(
   async (req: Request, res: Response) => {
     const { refreshToken } = req.body;
     const { email } = verifyToken(refreshToken);
-    const user = await userService.getUserByEmail(email, {
-      refreshToken: true,
-      active: true,
-      blocked: true,
-      email: true,
-      role: true,
-    });
+    const user = await userService.getUserByEmail(email, [
+      "refreshToken",
+      "email",
+      "role",
+      "blocked",
+      "id",
+    ]);
     if (!user || refreshToken !== user.refreshToken) {
       throw createHttpError({ message: "Invalid session" });
     }
-    // if (!user?.active) {
-    //   throw createHttpError({ message: "User is not active" });
-    // }
     if (user?.blocked) {
       throw createHttpError({ message: "User is blocked" });
     }
     delete user.refreshToken;
     const tokens = createUserTokens(user);
-    // await userService.editUser(user._id, {
-    //   refreshToken: tokens.refreshToken,
-    // });
+    await userService.editUser(user.id, {
+      refreshToken: tokens.refreshToken,
+    });
     res.send(createResponse(tokens));
   }
 );

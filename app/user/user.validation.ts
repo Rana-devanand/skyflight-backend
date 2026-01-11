@@ -99,6 +99,11 @@ export const createUser = checkExact([
     .withMessage("Username is required")
     .isString()
     .withMessage("Username must be a string"),
+  body("role")
+    .notEmpty()
+    .withMessage("Role is required")
+    .isString()
+    .withMessage("Role must be a string"),
   body("email")
     .notEmpty()
     .withMessage("Email is required")

@@ -65,7 +65,7 @@ router
     catchError,
     userController.refreshToken
   )
-  // .post("/logout", roleAuth(["USER"]), userController.logout)
+  .post("/logout", roleAuth(["USER"]), userController.logout)
   .post(
     "/social/google",
     userValidator.socialLogin("access_token"),
