@@ -1,4 +1,4 @@
-import { body, checkExact } from "express-validator";
+import { body, check, checkExact } from "express-validator";
 import { ProviderType } from "./user.dto";
 import * as userService from "./user.service";
 
@@ -127,10 +127,9 @@ export const updateUser = [
     .withMessage("email is required")
     .isString()
     .withMessage("email must be a string"),
-  body("active").isBoolean().withMessage("active must be a boolean"),
+  body("image").optional().isString().withMessage("image must be a string"),
   body("password")
-    .notEmpty()
-    .withMessage("password is required")
+    .optional()
     .isString()
     .withMessage("password must be a string"),
 ];
@@ -160,4 +159,12 @@ export const socialLogin = (name: string) => [
     .isString()
     .bail()
     .withMessage(`${name} must be string`),
+];
+
+export const uploadProfileValidation = [
+  body("image")
+    .exists({ checkFalsy: true })
+    .withMessage("Image is required")
+    .isString()
+    .withMessage("Image must be a string"),
 ];

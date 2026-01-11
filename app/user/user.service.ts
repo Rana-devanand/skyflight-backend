@@ -21,18 +21,25 @@ export const createUser = async (
    return user;
 };
 
-export const updateUser = async (id: string, data: IUser) => {
-  const {data : user , error} = await supabase.from("users").update(data).eq("id", id).select("id, name, email, created_at").single();
-  if(error) throw error
+export const updateUser = async (id: string, data: Partial<IUser>) => {
+  const { data: user, error } = await supabase
+    .from("users")
+    .update(data)
+    .eq("id", id)
+    .select("id, name, username, email, image, created_at")
+    .single();
+
+  if (error) throw error;
   return user;
 };
+
 
 export const editUser = async (id: string, data: Partial<IUser>) => {
   const { data: updatedUser, error } = await supabase
     .from("users")
     .update(data)
     .eq("id", id)    
-    .select("id, name, email, created_at")
+    .select("id, name, email, image , created_at")
     .single();
 
   if (error) throw error;
@@ -77,7 +84,6 @@ export const getUserByEmail = async (
     projection && projection.length > 0
       ? projection.join(",")
       : "id, uid, name, email, username, password, role, provider, refreshToken, created_at";
-
   const { data, error } = await supabaseAdmin
     .from("users")
     .select(selectFields)

@@ -4,6 +4,9 @@ import { catchError } from "../common/middleware/cath-error.middleware";
 import { roleAuth } from "../common/middleware/role-auth.middleware";
 import * as userController from "./user.controller";
 import * as userValidator from "./user.validation";
+import { upload } from "../common/middleware/upload";
+import { catchFileUploadError } from "../common/middleware/catch-file.uploadMiddleware";
+import { uploadProfileValidation } from "./user.validation";
 
 const router = Router();
 
@@ -13,8 +16,22 @@ router
   .get("/:id", userController.getUserById)
   .delete("/:id", userController.deleteUser)
   .post("/", userValidator.createUser, catchError, userController.createUser)
-  .put("/:id", userValidator.updateUser, catchError, userController.updateUser)
+  .put(
+    "/:id",
+    roleAuth(["USER"]),
+    userValidator.updateUser,
+    catchError,
+    userController.updateUser
+  )
   .patch("/:id", userValidator.editUser, catchError, userController.editUser)
+  .post("/upload-doc", upload.single("file"), userController.uploadDocument)
+  .patch(
+    "/upload-profile",
+    roleAuth(["USER"]),
+    uploadProfileValidation,
+    catchFileUploadError,
+    userController.uploadProfile
+  )
   .post(
     "/register",
     userValidator.createUser,
@@ -24,32 +41,32 @@ router
   .post(
     "/invite",
     userValidator.verifyEmail,
-    catchError,
+    catchError
     // userController.inviteUser
   )
   .post(
     "/verify-invitation",
     userValidator.verifyInvitation,
-    catchError,
+    catchError
     // userController.verifyInvitation
   )
   .post(
     "/reset-password",
     userValidator.verifyInvitation,
-    catchError,
+    catchError
     // userController.resetPassword
   )
   .post(
     "/forgot-password",
     userValidator.forgotPassword,
-    catchError,
+    catchError
     // userController.requestResetPassword
   )
   .post(
     "/change-password",
     roleAuth(["USER"]),
     userValidator.changePassword,
-    catchError,
+    catchError
     // userController.changePassword
   )
   .post(
@@ -71,6 +88,6 @@ router
     userValidator.socialLogin("access_token"),
     catchError,
     userController.googleLogin
-  )
+  );
 
 export default router;

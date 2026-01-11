@@ -20,7 +20,7 @@ export const isValidPassword = async (plain: string, hash: string) => {
 export const getUserByEmail = async (email: string) => {
   const { data, error } = await supabaseAdmin
     .from("users")
-    .select("id, uid,  name, email,username, password, role, provider, created_at")
+    .select("id, uid,  name, email,username,image, password, role, provider, created_at")
     .eq("email", email)
     .single();
   if (error) return null;
@@ -30,7 +30,7 @@ export const getUserByEmail = async (email: string) => {
 export const getUserById = async (id: string) => {
   const { data } = await supabaseAdmin
     .from("users")
-    .select("id, name, username, email, role, provider, created_at")
+    .select("id, name, username, email,image, role, provider, created_at")
     .eq("id", id)
     .single();
   return data;

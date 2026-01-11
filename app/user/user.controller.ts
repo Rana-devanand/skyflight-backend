@@ -11,14 +11,72 @@ import {
   isValidPassword,
   verifyToken,
 } from "../common/services/passport-jwt.service";
-import { ProviderType } from "./user.dto";
-import { hashPassword } from "./user.schema";
 import * as userService from "./user.service";
+import fs from "fs";
+import cloudinary from "../common/services/cloudinary";
 
 export const createUser = asyncHandler(async (req: Request, res: Response) => {
   const result = await userService.createUser(req.body);
   res.send(createResponse(result, "User created sucssefully"));
 });
+
+export const uploadDocument = async (req: Request, res: Response) => {
+  try {
+    const file = req.file;
+
+    if (!file) return res.status(400).json({ error: "No file uploaded" });
+
+    const result = await cloudinary.uploader.upload(file.path, {
+      resource_type: "raw",
+      folder: "skyvault/docs",
+      use_filename: true,
+      unique_filename: true,
+    });
+
+    fs.unlinkSync(file.path); // remove temp file
+
+    res.status(200).json({
+      url: result.secure_url,
+      publicId: result.public_id,
+      name: file.originalname,
+      size: file.size,
+      format: result.format,
+    });
+  } catch (err) {
+    console.log("Upload Error:", err);
+    res.status(500).json({ error: "Document upload failed" });
+  }
+};
+
+export const uploadProfile = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user?.id!;
+    console.log({ userId, body: req.body, user: req.user });
+    const { image } = req.body;
+
+    if (!image) {
+      console.log("Upload profile error: Image is missing from request body");
+      return res.status(400).json({
+        success: false,
+        message: "Image is required",
+      });
+    }
+
+    const result = await userService.updateUser(userId, { image });
+
+    res.status(200).json({
+      success: true,
+      data: result,
+      message: "Profile image updated successfully",
+    });
+  } catch (error) {
+    console.log("Upload profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: error instanceof Error ? error.message : "User update failed",
+    });
+  }
+};
 
 // export const inviteUser = asyncHandler(async (req: Request, res: Response) => {
 //   const result = await userService.createUser({
@@ -175,7 +233,8 @@ export const createUser = asyncHandler(async (req: Request, res: Response) => {
 // );
 
 export const updateUser = asyncHandler(async (req: Request, res: Response) => {
-  const result = await userService.updateUser(req.params.id, req.body);
+  const userId = req.user?.id;
+  const result = await userService.updateUser(userId!, req.body);
   res.send(createResponse(result, "User updated sucssefully"));
 });
 
@@ -222,6 +281,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getUserInfo = asyncHandler(async (req: Request, res: Response) => {
+  console.log(req.user);
   const user = await userService.getUserById(req.user?.id!);
   res.send(createResponse(user));
 });
@@ -246,9 +306,6 @@ export const refreshToken = asyncHandler(
     if (!user || refreshToken !== user.refreshToken) {
       throw createHttpError({ message: "Invalid session" });
     }
-    if (user?.blocked) {
-      throw createHttpError({ message: "User is blocked" });
-    }
     delete user.refreshToken;
     const tokens = createUserTokens(user);
     await userService.editUser(user.id, {
@@ -257,8 +314,6 @@ export const refreshToken = asyncHandler(
     res.send(createResponse(tokens));
   }
 );
-
-
 
 export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
   const { data } = await axios.get<{
@@ -274,18 +329,17 @@ export const googleLogin = asyncHandler(async (req: Request, res: Response) => {
 
   const existUser = await userService.getUserByEmail(data.email);
   // const user =
-    // existUser ??
-    // (await userService.createUser({
-    //   email,
-    //   username,
-    //   name,
-    //   provider: ProviderType.GOOGLE,
-    //   image: picture,
-    //   role: "USER",
-    // }));
+  // existUser ??
+  // (await userService.createUser({
+  //   email,
+  //   username,
+  //   name,
+  //   provider: ProviderType.GOOGLE,
+  //   image: picture,
+  //   role: "USER",
+  // }));
 
   // const tokens = createUserTokens(user);
   // await userService.editUser(user._id, { refreshToken: tokens.refreshToken });
   // res.send(createResponse(tokens));
 });
-
