@@ -5,6 +5,7 @@ import { supabase } from "../common/helper/supabaseClient";
 import { supabaseAdmin } from "../common/helper/supabaseAdmin";
 import bcrypt from "bcrypt";
 
+type UserProjection = (keyof IUser)[] | undefined;
 
 export const createUser = async (
   data: Omit<IUser, "_id" | "createdAt" | "updatedAt">
@@ -70,10 +71,25 @@ export const getAllUser = async (
 };
 export const getUserByEmail = async (
   email: string,
-  projection?: ProjectionType<IUser>
+  projection?: UserProjection
 ) => {
-  const result = await UserSchema.findOne({ email }, projection).lean();
-  return result;
+  const selectFields =
+    projection && projection.length > 0
+      ? projection.join(",")
+      : "id, uid, name, email, username, password, role, provider, refreshToken, created_at";
+
+  const { data, error } = await supabaseAdmin
+    .from("users")
+    .select(selectFields)
+    .eq("email", email)
+    .maybeSingle();
+
+  if (error) {
+    console.log("getUserByEmail error:", error.message);
+    return null;
+  }
+
+  return data as IUser | null;
 };
 
 export const countItems = () => {
