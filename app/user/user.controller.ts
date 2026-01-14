@@ -262,7 +262,7 @@ export const getAllUser = asyncHandler(async (req: Request, res: Response) => {
   if (skip || limit) {
     const count = await userService.countItems();
     res.send(
-      createResponse({
+      createResponse({ 
         count,
         users: result,
       })

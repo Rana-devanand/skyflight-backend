@@ -54,7 +54,7 @@ passport.use(
         if (!isMatch)
           return done(createError(401, "Invalid email or password"), false);
 
-        delete (user as any).password;
+        delete (user as any).password; 
 
         return done(null, user);
       } catch (err: any) {

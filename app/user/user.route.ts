@@ -30,7 +30,7 @@ router
     roleAuth(["USER"]),
     uploadProfileValidation,
     catchFileUploadError,
-    userController.uploadProfile
+    userController.uploadProfile 
   )
   .post(
     "/register",

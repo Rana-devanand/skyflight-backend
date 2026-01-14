@@ -14,7 +14,7 @@ type Transporter = nodemailer.Transporter<SMTPTransport.SentMessageInfo>;
 const transporters: Record<Transport, Transporter | null> = {
   [Transport.SMTP]: null,
 };
-
+ 
 if (process.env.SMTP_ENABLE && parseInt(process.env.SMTP_ENABLE) == 1) {
   transporters[Transport.SMTP] = nodemailer.createTransport({
     service: "gmail",

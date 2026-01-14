@@ -14,7 +14,7 @@ export const catchFileUploadError = expressAsyncHandler(
         data: {
           errors: errors.array(),
         },
-      });
+      }); 
     }
 
     next();

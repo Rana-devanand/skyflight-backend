@@ -128,7 +128,7 @@ export const updateUser = [
     .isString()
     .withMessage("email must be a string"),
   body("image").optional().isString().withMessage("image must be a string"),
-  body("password")
+  body("password") 
     .optional()
     .isString()
     .withMessage("password must be a string"),
