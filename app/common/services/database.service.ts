@@ -13,7 +13,7 @@ export const initDB = async (): Promise<boolean> => {
       .then(() => {
         console.log("MongoDB Connected!");
         resolve(true);
-      })
+      }) 
       .catch(reject);
   });
 };
